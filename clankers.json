@@ -84,6 +84,12 @@
     "last_pr": "2026-05-17T07:58:37.743Z"
   },
   {
+    "username": "oocheol",
+    "total_prs": 2,
+    "first_pr": "2026-05-18T08:53:21.999Z",
+    "last_pr": "2026-05-18T09:25:04.642Z"
+  },
+  {
     "username": "CuboYe",
     "total_prs": 1,
     "first_pr": "2026-05-16T16:52:10.623Z",
@@ -142,11 +148,5 @@
     "total_prs": 1,
     "first_pr": "2026-05-18T05:37:38.941Z",
     "last_pr": "2026-05-18T05:37:38.941Z"
-  },
-  {
-    "username": "oocheol",
-    "total_prs": 1,
-    "first_pr": "2026-05-18T08:53:21.999Z",
-    "last_pr": "2026-05-18T08:53:21.999Z"
   }
 ]
