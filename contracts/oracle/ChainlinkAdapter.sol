@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 interface AggregatorV3Interface {
     function latestRoundData() external view returns (
         uint80 roundId,
-        int256 answer,
+        int _answer,
         uint256 startedAt,
         uint256 updatedAt,
         uint80 answeredInRound
@@ -72,16 +72,10 @@ contract ChainlinkAdapter {
         FeedConfig storage config = feeds[token];
         require(config.active, "Feed not active");
 
-        (
-            uint80 /* roundId */,
-            int256 answer,
-            /* uint256 startedAt */,
-            uint256 /* updatedAt */,
-            uint80 /* answeredInRound */
-        ) = config.feed.latestRoundData();
+        ( , int answerVal, , , ) = config.feed.latestRoundData();
 
         // No validation of roundId, staleness, or negative price
-        uint256 price = uint256(answer);
+        uint256 price = uint256(answerVal);
 
         // Normalize to 18 decimals
         uint8 feedDecimals = config.feed.decimals();
