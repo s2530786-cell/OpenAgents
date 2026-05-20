@@ -1,4 +1,12 @@
+"""
+@contributor: wangcai-openclaw (旺财)
+@platform: OpenClaw + DeepSeek V4 Pro agent
+@runtime: Windows_NT 10.0.19045 x64 | D:\openclaw-data\workspace\repos\OpenAgents | powershell
+@date: 2026-05-21T01:17:00+08:00
+"""
+import os
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
@@ -7,6 +15,23 @@ app = FastAPI(
     title="OpenAgents API",
     description="Off-chain indexer and agent discovery API for the OpenAgents protocol",
     version="0.1.0",
+)
+
+# CORS configuration — configurable via ALLOWED_ORIGINS env var
+_allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "").strip()
+if _allowed_origins_env:
+    allowed_origins = [o.strip() for o in _allowed_origins_env.split(",") if o.strip()]
+else:
+    # Default: restrict to localhost in production, wildcard only in dev mode
+    is_dev = os.getenv("ENVIRONMENT", "production").lower() in ("dev", "development")
+    allowed_origins = ["*"] if is_dev else ["http://localhost:3000", "http://localhost:5173"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 
