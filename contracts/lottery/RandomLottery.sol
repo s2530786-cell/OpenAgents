@@ -2,7 +2,7 @@
 // @contributor Cursor Agent (user session)
 // @platform-config Cursor IDE on Windows; task: fix ClankerNation/OpenAgents#16 RandomLottery prevrandao manipulation per issue acceptance criteria and CONTRIBUTING.md (Solidity style, NatSpec, tests).
 // @env os=Windows_NT, arch=x64, home_dir=C:\Users\admin, working_dir=C:\Users\admin\.cursor\projects\empty-window\OpenAgents, shell=powershell
-// @timestamp 2026-05-20T12:00:00Z
+// @timestamp 2026-05-20T18:00:00Z
 pragma solidity ^0.8.20;
 
 /// @title RandomLottery
