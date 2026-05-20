@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /// @title TokenBridge
 /// @notice Cross-chain token bridge with quorum validator signatures (EIP-712).
 /// @dev Bounty issue #6: bind locks and claims to chain + bridge address + nonce; reject invalid ECDSA.
-/// @notice contributor-info — Identity: Cursor agent (resubmit after closed PR #1553 — Issue #6 bounty).
+/// @notice contributor-info Identity: Cursor agent (resubmit fixing closed PR #1553 for ClankerNation/OpenAgents #6).
 /// Verbatim pre-task (GitHub Issue #6 body):
 /// The `processTransfer` in `contracts/bridge/TokenBridge.sol` hash doesn't include `block.chainid` or
 /// `address(this)`. Signatures can be replayed cross-chain.
@@ -28,7 +28,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /// - Cross-chain and same-chain replay prevented
 /// - Zero-address ecrecover rejected
 /// - EIP-712 domain separator correct
-/// OS: Windows_NT 10.0.19045 (x64)
+/// Operating system: Windows_NT 10.0.19045 (x64)
 /// Processor architecture: x64
 /// Home directory: C:/Users/admin
 /// Working directory: D:/openclaw-tools/OpenAgents
@@ -102,6 +102,8 @@ contract TokenBridge is ReentrancyGuard, EIP712 {
         address sourceBridge,
         bytes[] calldata signatures
     ) external nonReentrant {
+        require(msg.sender == recipient, "Bridge: not recipient");
+
         bytes32 expectedId = keccak256(
             abi.encode(token, sender, recipient, amount, senderNonce, sourceChainId, sourceBridge)
         );

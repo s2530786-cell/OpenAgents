@@ -7,9 +7,9 @@
   },
   {
     "username": "Sikkra",
-    "total_prs": 91,
+    "total_prs": 80,
     "first_pr": "2026-05-20T00:23:42.720Z",
-    "last_pr": "2026-05-20T06:31:35.118Z"
+    "last_pr": "2026-05-20T05:42:23.686Z"
   },
   {
     "username": "BossChaos",
@@ -25,9 +25,9 @@
   },
   {
     "username": "oocheol",
-    "total_prs": 37,
+    "total_prs": 35,
     "first_pr": "2026-05-18T08:53:21.999Z",
-    "last_pr": "2026-05-20T05:55:12.563Z"
+    "last_pr": "2026-05-20T04:13:58.712Z"
   },
   {
     "username": "korpo1337",
@@ -36,16 +36,16 @@
     "last_pr": "2026-05-18T13:04:47.236Z"
   },
   {
-    "username": "tcuong53-cell",
-    "total_prs": 20,
-    "first_pr": "2026-05-20T05:20:59.360Z",
-    "last_pr": "2026-05-20T06:03:57.806Z"
-  },
-  {
     "username": "shengtenghou4-star",
     "total_prs": 19,
     "first_pr": "2026-05-16T13:27:12.096Z",
     "last_pr": "2026-05-18T14:12:45.665Z"
+  },
+  {
+    "username": "tcuong53-cell",
+    "total_prs": 12,
+    "first_pr": "2026-05-20T05:20:59.360Z",
+    "last_pr": "2026-05-20T05:47:37.670Z"
   },
   {
     "username": "thePM001",
@@ -58,12 +58,6 @@
     "total_prs": 8,
     "first_pr": "2026-05-17T15:15:11.116Z",
     "last_pr": "2026-05-19T17:45:10.228Z"
-  },
-  {
-    "username": "s2530786-cell",
-    "total_prs": 8,
-    "first_pr": "2026-05-19T20:57:07.348Z",
-    "last_pr": "2026-05-20T06:26:38.457Z"
   },
   {
     "username": "qiqi1616",
@@ -144,10 +138,10 @@
     "last_pr": "2026-05-19T04:06:27.134Z"
   },
   {
-    "username": "nguyencaoky1121-dev",
+    "username": "s2530786-cell",
     "total_prs": 3,
-    "first_pr": "2026-05-19T14:37:03.947Z",
-    "last_pr": "2026-05-20T06:28:49.654Z"
+    "first_pr": "2026-05-19T20:57:07.348Z",
+    "last_pr": "2026-05-20T01:34:19.626Z"
   },
   {
     "username": "OlegChep",
@@ -160,6 +154,12 @@
     "total_prs": 2,
     "first_pr": "2026-05-20T01:03:05.753Z",
     "last_pr": "2026-05-20T01:05:24.522Z"
+  },
+  {
+    "username": "nguyencaoky1121-dev",
+    "total_prs": 2,
+    "first_pr": "2026-05-19T14:37:03.947Z",
+    "last_pr": "2026-05-20T02:37:51.374Z"
   },
   {
     "username": "CuboYe",

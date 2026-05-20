@@ -137,7 +137,7 @@ describe("TokenBridge (Issue #6)", function () {
     const sigs = await signClaim([v, vAlt], bridgeDst, claim);
 
     const before = await token.balanceOf(alice.address);
-    await bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs);
+    await bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs);
     expect((await token.balanceOf(alice.address)) - before).to.equal(amount);
   });
 
@@ -164,9 +164,9 @@ describe("TokenBridge (Issue #6)", function () {
     };
     const sigs = await signClaim([v, vAlt], bridgeDst, claim);
 
-    await bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs);
+    await bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs);
     await expect(
-      bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
+      bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
     ).to.be.revertedWith("Bridge: already processed");
   });
 
@@ -195,7 +195,7 @@ describe("TokenBridge (Issue #6)", function () {
     const sigs = await signClaim([v, vAlt], bridgeDst, claim);
 
     await expect(
-      bridgeDst.claim(fakeId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
+      bridgeDst.connect(alice).claim(fakeId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
     ).to.be.revertedWith("Bridge: transfer id mismatch");
   });
 
@@ -223,7 +223,7 @@ describe("TokenBridge (Issue #6)", function () {
     const wrongChainSigs = await signClaim([v, vAlt], bridgeDst, claim, { chainId: 99999n });
 
     await expect(
-      bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, wrongChainSigs),
+      bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, wrongChainSigs),
     ).to.be.reverted;
   });
 
@@ -240,7 +240,7 @@ describe("TokenBridge (Issue #6)", function () {
     const sigs = [badSig, badSig];
 
     await expect(
-      bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
+      bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigs),
     ).to.be.reverted;
   });
 
@@ -278,12 +278,12 @@ describe("TokenBridge (Issue #6)", function () {
     const sigsWrong = await signClaim([v, vAlt], bridgeDst, claimWrong);
 
     await expect(
-      bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigsWrong),
+      bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigsWrong),
     ).to.be.reverted;
 
     const claimRight = { ...claimWrong, destBridge: dstAddr };
     const sigsRight = await signClaim([v, vAlt], bridgeDst, claimRight);
-    await bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigsRight);
+    await bridgeDst.connect(alice).claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigsRight);
   });
 
   describe("cross-chain (dual Hardhat network — Sepolia / Base profiles)", function () {
@@ -406,7 +406,7 @@ describe("TokenBridge (Issue #6)", function () {
         destBridge: dstAddr,
       };
       const validSigs = await signClaim([vLocal, vAltLocal], bridgeDst, validClaim);
-      await bridgeDst.claim(
+      await bridgeDst.connect(aliceLocal).claim(
         transferId,
         tokAddr,
         aliceLocal.address,
@@ -424,7 +424,7 @@ describe("TokenBridge (Issue #6)", function () {
       };
       const replaySigs = await signClaim([vLocal, vAltLocal], bridgeDst, replayClaim);
       await expect(
-        bridgeDst.claim(
+        bridgeDst.connect(aliceLocal).claim(
           transferId,
           tokAddr,
           aliceLocal.address,
