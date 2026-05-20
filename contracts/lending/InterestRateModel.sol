@@ -5,6 +5,13 @@ pragma solidity ^0.8.20;
 /// @notice Variable interest rate model based on pool utilization
 /// @dev Rate increases with utilization, with a kink at the optimal point
 contract InterestRateModel {
+    struct RateParameters {
+        uint256 baseRate;
+        uint256 multiplier;
+        uint256 jumpMultiplier;
+        uint256 kink;
+    }
+
     // BUG: No bounds on base rate — admin can set baseRate to any value including
     // extremely high values that make borrowing effectively impossible, or zero
     // which means lenders earn nothing at low utilization
@@ -19,6 +26,7 @@ contract InterestRateModel {
     address public admin;
 
     event RateParamsUpdated(uint256 baseRate, uint256 multiplier, uint256 jumpMultiplier, uint256 kink);
+    event RateParametersUpdated(uint256 oldBaseRate, uint256 newBaseRate, uint256 oldMultiplier, uint256 newMultiplier, uint256 oldJumpMultiplier, uint256 newJumpMultiplier);
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Not admin");
@@ -44,11 +52,36 @@ contract InterestRateModel {
         uint256 _jumpMultiplier,
         uint256 _kink
     ) external onlyAdmin {
+        emit RateParametersUpdated(baseRate, _baseRate, multiplier, _multiplier, jumpMultiplier, _jumpMultiplier);
         baseRate = _baseRate;
         multiplier = _multiplier;
         jumpMultiplier = _jumpMultiplier;
         kink = _kink;
         emit RateParamsUpdated(_baseRate, _multiplier, _jumpMultiplier, _kink);
+    }
+
+    function updateBaseRate(uint256 _baseRate) external onlyAdmin {
+        uint256 old = baseRate;
+        baseRate = _baseRate;
+        emit RateParametersUpdated(old, _baseRate, multiplier, multiplier, jumpMultiplier, jumpMultiplier);
+    }
+
+    function updateMultiplier(uint256 _multiplier) external onlyAdmin {
+        uint256 old = multiplier;
+        multiplier = _multiplier;
+        emit RateParametersUpdated(baseRate, baseRate, old, _multiplier, jumpMultiplier, jumpMultiplier);
+    }
+
+    function updateJumpMultiplier(uint256 _jumpMultiplier) external onlyAdmin {
+        uint256 old = jumpMultiplier;
+        jumpMultiplier = _jumpMultiplier;
+        emit RateParametersUpdated(baseRate, baseRate, multiplier, multiplier, old, _jumpMultiplier);
+    }
+
+    function updateKink(uint256 _kink) external onlyAdmin {
+        uint256 old = kink;
+        kink = _kink;
+        emit RateParametersUpdated(baseRate, baseRate, multiplier, multiplier, jumpMultiplier, jumpMultiplier);
     }
 
     function getUtilization(uint256 totalBorrowed, uint256 totalDeposits) public pure returns (uint256) {
@@ -89,5 +122,9 @@ contract InterestRateModel {
 
     function getAnnualRate(uint256 totalBorrowed, uint256 totalDeposits) external view returns (uint256) {
         return this.getBorrowRate(totalBorrowed, totalDeposits) * BLOCKS_PER_YEAR;
+    }
+
+    function getParameters() external view returns (RateParameters memory) {
+        return RateParameters(baseRate, multiplier, jumpMultiplier, kink);
     }
 }
