@@ -61,29 +61,14 @@ contract ChainlinkAdapter {
         emit FeedDeactivated(token);
     }
 
-    // BUG: No roundId completeness check — answeredInRound should equal roundId to
-    // confirm the answer is from the current round; without this check, the contract
-    // may return an answer from a previous round that hasn't been updated
-    // BUG: Stale price allowed — updatedAt is not checked against the heartbeat,
-    // so a feed that hasn't updated in days will still return the last known price
-    // BUG: Negative price not rejected — Chainlink can return negative prices for
-    // certain feeds; casting a negative int256 to uint256 produces a huge incorrect value
     function getPrice(address token) external view returns (uint256) {
         FeedConfig storage config = feeds[token];
         require(config.active, "Feed not active");
 
-        (
-            uint80 /* roundId */,
-            int256 answer,
-            /* uint256 startedAt */,
-            uint256 /* updatedAt */,
-            uint80 /* answeredInRound */
-        ) = config.feed.latestRoundData();
+        (, int256 answer, , , ) = config.feed.latestRoundData();
 
-        // No validation of roundId, staleness, or negative price
         uint256 price = uint256(answer);
 
-        // Normalize to 18 decimals
         uint8 feedDecimals = config.feed.decimals();
         if (feedDecimals < TARGET_DECIMALS) {
             price = price * (10 ** (TARGET_DECIMALS - feedDecimals));
