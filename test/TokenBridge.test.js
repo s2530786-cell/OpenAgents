@@ -1,6 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+/** Sepolia + Base chain IDs — dual-network profiles referenced in hardhat.config.js comments. */
+const NETWORK_SEPOLIA = 11155111n;
+const NETWORK_BASE = 8453n;
+
 function orderValidators(signers) {
   const sorted = [...signers].sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1));
   return sorted;
@@ -280,5 +284,158 @@ describe("TokenBridge (Issue #6)", function () {
     const claimRight = { ...claimWrong, destBridge: dstAddr };
     const sigsRight = await signClaim([v, vAlt], bridgeDst, claimRight);
     await bridgeDst.claim(transferId, tokAddr, alice.address, alice.address, amount, 0n, net.chainId, srcAddr, sigsRight);
+  });
+
+  describe("cross-chain (dual Hardhat network — Sepolia / Base profiles)", function () {
+    it("lock transferId differs across chain deployments (Bug 1)", async function () {
+      const signers = await ethers.getSigners();
+      const aliceLocal = signers[1];
+      const Bridge = await ethers.getContractFactory("TokenBridge");
+      const Token = await ethers.getContractFactory("MockERC20");
+
+      const token = await Token.deploy("T", "T");
+      await token.waitForDeployment();
+      const tokAddr = await token.getAddress();
+
+      const bridgeSepolia = await Bridge.deploy(2);
+      await bridgeSepolia.waitForDeployment();
+      const bridgeBase = await Bridge.deploy(2);
+      await bridgeBase.waitForDeployment();
+
+      const sepAddr = await bridgeSepolia.getAddress();
+      const baseAddr = await bridgeBase.getAddress();
+
+      const idSepolia = computeTransferId(
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        NETWORK_SEPOLIA,
+        sepAddr,
+      );
+      const idBase = computeTransferId(
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        NETWORK_BASE,
+        baseAddr,
+      );
+      expect(idSepolia).to.not.equal(idBase);
+
+      await token.mint(aliceLocal.address, amount * 2n);
+      await token.connect(aliceLocal).approve(sepAddr, amount);
+      await token.connect(aliceLocal).approve(baseAddr, amount);
+
+      const net = await ethers.provider.getNetwork();
+      await bridgeSepolia.connect(aliceLocal).lock(tokAddr, aliceLocal.address, amount);
+      await bridgeBase.connect(aliceLocal).lock(tokAddr, aliceLocal.address, amount);
+
+      const idOnChainSepolia = computeTransferId(
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        net.chainId,
+        sepAddr,
+      );
+      const idOnChainBase = computeTransferId(
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        net.chainId,
+        baseAddr,
+      );
+      expect(idOnChainSepolia).to.not.equal(idOnChainBase);
+    });
+
+    it("cross-chain replay prevented across network profiles", async function () {
+      const signers = await ethers.getSigners();
+      const ownerLocal = signers[0];
+      const aliceLocal = signers[1];
+      const vLocal = signers[2];
+      const vAltLocal = signers[3];
+      const Bridge = await ethers.getContractFactory("TokenBridge");
+      const Token = await ethers.getContractFactory("MockERC20");
+      const net = await ethers.provider.getNetwork();
+
+      const token = await Token.deploy("T", "T");
+      await token.waitForDeployment();
+      const tokAddr = await token.getAddress();
+
+      const bridgeSrc = await Bridge.deploy(2);
+      await bridgeSrc.waitForDeployment();
+      const srcAddr = await bridgeSrc.getAddress();
+
+      await token.mint(aliceLocal.address, amount);
+      await token.connect(aliceLocal).approve(srcAddr, amount);
+      await bridgeSrc.connect(aliceLocal).lock(tokAddr, aliceLocal.address, amount);
+
+      const transferId = computeTransferId(
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        net.chainId,
+        srcAddr,
+      );
+
+      const bridgeDst = await Bridge.deploy(2);
+      await bridgeDst.waitForDeployment();
+      const dstAddr = await bridgeDst.getAddress();
+      await bridgeDst.connect(ownerLocal).addValidator(vLocal.address);
+      await bridgeDst.connect(ownerLocal).addValidator(vAltLocal.address);
+      await token.mint(dstAddr, amount);
+
+      const validClaim = {
+        transferId,
+        token: tokAddr,
+        sender: aliceLocal.address,
+        recipient: aliceLocal.address,
+        amount,
+        nonce: 0n,
+        sourceChainId: net.chainId,
+        sourceBridge: srcAddr,
+        destChainId: net.chainId,
+        destBridge: dstAddr,
+      };
+      const validSigs = await signClaim([vLocal, vAltLocal], bridgeDst, validClaim);
+      await bridgeDst.claim(
+        transferId,
+        tokAddr,
+        aliceLocal.address,
+        aliceLocal.address,
+        amount,
+        0n,
+        net.chainId,
+        srcAddr,
+        validSigs,
+      );
+
+      const replayClaim = {
+        ...validClaim,
+        destChainId: NETWORK_BASE,
+      };
+      const replaySigs = await signClaim([vLocal, vAltLocal], bridgeDst, replayClaim);
+      await expect(
+        bridgeDst.claim(
+          transferId,
+          tokAddr,
+          aliceLocal.address,
+          aliceLocal.address,
+          amount,
+          0n,
+          net.chainId,
+          srcAddr,
+          replaySigs,
+        ),
+      ).to.be.reverted;
+    });
   });
 });

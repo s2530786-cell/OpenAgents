@@ -15,6 +15,7 @@ module.exports = {
     ],
   },
   networks: {
+    // Default Hardhat EVM (31337). Cross-chain tests use Sepolia (11155111) + Base (8453) profile constants.
     hardhat: {},
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL || "",
