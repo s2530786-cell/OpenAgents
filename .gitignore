@@ -8,7 +8,9 @@ node_modules/
 
 # Hardhat
 cache/
+cache-lottery/
 artifacts/
+artifacts-lottery/
 typechain/
 typechain-types/
 

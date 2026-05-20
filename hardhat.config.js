@@ -1,14 +1,27 @@
 require("@nomicfoundation/hardhat-toolbox");
 
+const lotteryOnly = process.env.HARDHAT_LOTTERY_ONLY === "1";
+
 module.exports = {
+  paths: lotteryOnly
+    ? {
+        sources: "./contracts/lottery",
+        tests: "./test",
+        cache: "./cache-lottery",
+        artifacts: "./artifacts-lottery",
+      }
+    : undefined,
   solidity: {
-    version: "0.8.20",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.20",
+        settings: { optimizer: { enabled: true, runs: 200 } },
       },
-    },
+      {
+        version: "0.8.24",
+        settings: { optimizer: { enabled: true, runs: 200 } },
+      },
+    ],
   },
   networks: {
     hardhat: {},
