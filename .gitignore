@@ -8,6 +8,9 @@ node_modules/
 
 # Hardhat
 cache/
+
+# Forge
+out/
 artifacts/
 typechain/
 typechain-types/
