@@ -79,9 +79,7 @@ contract InterestRateModel {
     }
 
     function updateKink(uint256 _kink) external onlyAdmin {
-        uint256 old = kink;
         kink = _kink;
-        emit RateParametersUpdated(baseRate, baseRate, multiplier, multiplier, jumpMultiplier, jumpMultiplier);
     }
 
     function getUtilization(uint256 totalBorrowed, uint256 totalDeposits) public pure returns (uint256) {

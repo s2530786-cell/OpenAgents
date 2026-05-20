@@ -1,7 +1,8 @@
 [profile.default]
-src = "."
+src = "contracts/lending"
+test = "test"
 out = "out"
-libs = ["lib"]
+libs = ["lib/forge-std"]
 solc_version = "0.8.28"
 via_ir = true
 optimizer = true
@@ -10,4 +11,3 @@ auto_detect_remappings = false
 remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
-ffi = false
