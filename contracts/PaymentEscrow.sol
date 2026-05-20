@@ -54,6 +54,11 @@ contract PaymentEscrow is Ownable {
         Escrow storage escrow = escrows[escrowId];
         require(!escrow.released && !escrow.refunded, "Already settled");
         require(msg.sender == escrow.payer || msg.sender == owner(), "Not authorized");
+        // SECURITY FIX: Add time lock check to prevent premature release
+        // Only allow early release if explicitly locked OR if called by owner
+        if (msg.sender == escrow.payer) {
+            require(block.timestamp >= escrow.releaseTime, "Lock period not expired");
+        }
 
         escrow.released = true;
         IERC20(escrow.token).transfer(escrow.payee, escrow.amount);
