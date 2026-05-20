@@ -73,12 +73,14 @@ contract TaskRouter {
         AgentRegistry.Agent memory agent = registry.getAgent(task.assignedAgent);
         require(agent.owner == msg.sender, "Not assigned agent owner");
 
+        // SECURITY FIX: Update state BEFORE external call to prevent reentrancy
         task.result = result;
         task.status = TaskStatus.Completed;
 
         uint256 fee = task.reward * platformFee / 10000;
         uint256 payout = task.reward - fee;
 
+        // External call is now made after state changes (Checks-Effects-Interactions pattern)
         (bool success, ) = msg.sender.call{value: payout}("");
         require(success, "Payout failed");
 
